@@ -8,6 +8,11 @@ import { ServiceApiService } from './service-api.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+  DatasourceLastRawGitHub: any={};
+  DatasourceFullRawGitHub: any={};
+  DatasourceLastMeno2RawGitHub: any={};
+  DatasourceUnAnnoFa: any={};
+  dataAnnoScorso: string='';
 
   constructor(private service:ServiceApiService){
 
@@ -19,6 +24,7 @@ export class AppComponent {
   showPreWord:string=""
 
   Datasource:any={}
+  DatasourceStorico:any={}
   dobe:any
   uri:string=""
   
@@ -26,48 +32,95 @@ export class AppComponent {
   public chiamaApi(){
     this.service.getDatiApi().subscribe(res =>{
       console.log('res')
-      console.log(res.results[0])
-      this.Datasource=res.results[0]
-     
+      console.log(res)
+      this.Datasource=res[0]
+      console.log('datasource')
+      console.log(this.Datasource)
       
 
-      this.uri=this.Datasource.picture.large
-      console.log(this.uri)
+      
       this.showPreWord=""
       this.showWord=""
+    })
+    this.service.getDatiStoricoApi().subscribe(res=>{
+     
+      this.DatasourceStorico=res
+
+    })
+   
+
+    this.service.getDatiFullRawGitHubApi().subscribe(res=>{
+     
+      
+      this.DatasourceFullRawGitHub=res
+      console.log('storico')
+      console.log(this.DatasourceFullRawGitHub)
+
+      console.log('res-2')
+      this.DatasourceLastMeno2RawGitHub=this.DatasourceFullRawGitHub[ Object.keys(this.DatasourceFullRawGitHub).length-2]
+      console.log(this.DatasourceLastMeno2RawGitHub)
+      this.DatasourceUnAnnoFa=this.DatasourceFullRawGitHub[ Object.keys(this.DatasourceFullRawGitHub).length-366]
+      console.log('res anno scorso')
+      console.log(this.DatasourceUnAnnoFa)
+
+      let data=new Date(this.DatasourceUnAnnoFa.data)
+      this.dataAnnoScorso=String(data.getDate().toString()+"/"+String(data.getMonth()+1)+"/"+data.getFullYear()) 
+
+
+    })
+ this.service.getDatiLastRawGitHubApi().subscribe(res=>{
+      console.log('res2')
+      console.log(res[0])
+      this.DatasourceLastRawGitHub=res[0]
+
     })
 
   }
 assegnaDataNascita(){
-  this.showPreWord="Data Nascita :"
-  let data=new Date(this.Datasource.dob.date)
-  console.log(data.getFullYear())
-this.showWord=String(data.getDate().toString()+"/"+String(data.getMonth())+"/"+data.getFullYear()) 
+  /* console.log('data:')
+  console.log(this.Datasource.data) */
+  let data=new Date(this.DatasourceLastRawGitHub.data)
+    this.showPreWord="Data Ultimo Rilevamento :"
+
+  /* console.log('new date:')
+  console.log(data)
+
+  console.log(data.getFullYear()) */
+this.showWord=String(data.getDate().toString()+"/"+String(data.getMonth()+1)+"/"+data.getFullYear()) 
 
 }
 
-assegnaPassword(){
-  this.showPreWord="Password :"
-  this.showWord=this.Datasource.login.password;
+assegnaPositivi(){
+  this.showPreWord="Attualmente Positivi :"
+  this.showWord=parseInt( this.DatasourceLastRawGitHub.totale_positivi ).toLocaleString()+'(incremento di  '+(this.DatasourceLastRawGitHub.totale_positivi-this.DatasourceLastMeno2RawGitHub.totale_positivi).toLocaleString()+' persone)'
+  
 }
 
-assegnaNumeroTelefono(){
-  this.showPreWord="NumeroTelefono :"
-  this.showWord=this.Datasource.phone
+assegnaGuariti(){
+  this.showPreWord="totale Guariti :"
+  this.showWord=parseInt( this.DatasourceLastRawGitHub.dimessi_guariti ).toLocaleString()+'(incremento di   '+(this.DatasourceLastRawGitHub.dimessi_guariti-this.DatasourceLastMeno2RawGitHub.dimessi_guariti).toLocaleString()+' persone)'
+
 }
 
-assegnaIndirizzo(){
-  this.showPreWord="Indirizzo :"
-  this.showWord=this.Datasource.location.street.number+" "+this.Datasource.location.street.name
+assegnaterapiai(){
+  this.showPreWord="Terapie intensive Odierne :"
+  
+  this.showWord=parseInt( this.DatasourceLastRawGitHub.terapia_intensiva ).toLocaleString()+'(incremento di   '+(this.DatasourceLastRawGitHub.terapia_intensiva-this.DatasourceLastMeno2RawGitHub.terapia_intensiva).toLocaleString()+' persone) ingressi in T.I. :'+this.DatasourceLastRawGitHub.ingressi_terapia_intensiva
+
 }
 
-assegnaNome(){
-  this.showPreWord="Nome :"
-  this.showWord=this.Datasource.name.title+" "+this.Datasource.name.first+" "+this.Datasource.name.last
+assegnaPositiviAnnoScorso(){
+  this.showPreWord="Numero Positivi Rispetto Anno Scorso ("+this.dataAnnoScorso+" ):"
+  this.showWord=parseInt( this.DatasourceLastRawGitHub.totale_positivi ).toLocaleString()+' vs  '+parseInt( this.DatasourceUnAnnoFa.totale_positivi ).toLocaleString()
 }
 
-assegnaEmail(){
-  this.showPreWord="Email :"
-  this.showWord=this.Datasource.email
+assegnaterapiaiAnnoScorso(){
+  this.showPreWord="ricoverati in terapia Intensiva rispetto ad un anno fa("+this.dataAnnoScorso+" ):"
+  this.showWord=parseInt( this.DatasourceLastRawGitHub.terapia_intensiva ).toLocaleString()+' vs  '+parseInt( this.DatasourceUnAnnoFa.terapia_intensiva ).toLocaleString()
+}
+assegnaOspedalizzatiAnnoScorso(){
+  this.showPreWord="Ospedalizzati rispetto ad un anno fa("+this.dataAnnoScorso+" ):"
+  this.showWord=parseInt( this.DatasourceLastRawGitHub.ricoverati_con_sintomi ).toLocaleString()+' vs  '+parseInt( this.DatasourceUnAnnoFa.ricoverati_con_sintomi ).toLocaleString()
+
 }
 }
