@@ -1,0 +1,38 @@
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<div class="form-floating row">
+   
+    <label class="col-auto" ><h3>Scegli una data per visualizzarne la situazione</h3></label>
+    <input type="date" class="form-control col" [(ngModel)]="data" (change)="ricercaBollettinoCovid()">
+  </div>
+
+  <h4>
+      {{data}}
+
+      {{prova}}
+  </h4>
+
+  <table class="table">
+    <thead>
+        <tr>
+            <th >
+                chiave
+            </th>
+            <th >
+                valore
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let oggett of oggetto">
+            <td >
+            {{oggett}}
+            </td>
+            <td>
+                {{arrayy[oggett]}}
+            </td>
+        </tr>
+    </tbody>
+</table>
